@@ -1,7 +1,10 @@
 package com.sistore.productservice.service;
 
+import com.sistore.productservice.dto.InventoryRequest;
+import com.sistore.productservice.dto.InventoryResponse;
 import com.sistore.productservice.dto.ProductRequest;
 import com.sistore.productservice.dto.ProductResponse;
+import com.sistore.productservice.entity.Inventory;
 import com.sistore.productservice.entity.Product;
 import com.sistore.productservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +47,10 @@ public class ProductServiceImpl implements ProductService {
             currentProduct.setName(productRequest.getName());
             currentProduct.setDescription(productRequest.getDescription());
             currentProduct.setPrice(productRequest.getPrice());
-            currentProduct.setQuantity(productRequest.getQuantity());
             currentProduct.setCategory(productRequest.getCategory());
             currentProduct.setBrand(productRequest.getBrand());
             currentProduct.setAvailable(productRequest.getAvailable());
+            currentProduct.setInventory(mapToInventory(productRequest.getInventory()));
             currentProduct.setUpdatedAt(LocalDateTime.now());
             productRepository.save(currentProduct);
         }
@@ -60,12 +63,12 @@ public class ProductServiceImpl implements ProductService {
         productDto.setName(product.getName());
         productDto.setDescription(product.getDescription());
         productDto.setPrice(product.getPrice());
-        productDto.setQuantity(product.getQuantity());
         productDto.setCategory(product.getCategory());
         productDto.setBrand(product.getBrand());
         productDto.setAvailable(product.getAvailable());
         productDto.setCreatedAt(product.getCreatedAt());
         productDto.setUpdatedAt(product.getUpdatedAt());
+        productDto.setInventory(mapToInventoryResponse(product.getInventory()));
         return productDto;
     }
 
@@ -74,12 +77,31 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
-        product.setQuantity(productDto.getQuantity());
         product.setCategory(productDto.getCategory());
         product.setBrand(productDto.getBrand());
         product.setAvailable(productDto.getAvailable());
         product.setCreatedAt(productDto.getCreatedAt());
         product.setUpdatedAt(productDto.getUpdatedAt());
+        product.setInventory(mapToInventory(productDto.getInventory()));
         return product;
+    }
+
+    private InventoryResponse mapToInventoryResponse(Inventory inventory) {
+        if (Objects.isNull(inventory)) {
+            return null;
+        }
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setInventoryId(inventory.getInventoryId());
+        inventoryResponse.setStock(inventory.getStock());
+        return inventoryResponse;
+    }
+
+    private Inventory mapToInventory(InventoryRequest inventoryRequest) {
+        if (Objects.isNull(inventoryRequest)) {
+            return null;
+        }
+        Inventory inventory = new Inventory();
+        inventory.setStock(inventoryRequest.getStock());
+        return inventory;
     }
 }

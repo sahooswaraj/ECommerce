@@ -19,8 +19,6 @@ public class ProductResponse {
 
     private BigDecimal price;
 
-    private Integer quantity;
-
     private String category ;
 
     private String brand;
@@ -30,5 +28,7 @@ public class ProductResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private InventoryResponse inventory;
 
 }
