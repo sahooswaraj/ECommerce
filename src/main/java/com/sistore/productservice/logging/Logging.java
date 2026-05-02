@@ -29,7 +29,7 @@ public class Logging {
 
     @After("@annotation(org.springframework.web.bind.annotation.DeleteMapping)")
     public void logExecutionTime(){
-        System.out.println("product deleted successfully------------------");
+        System.out.println("product deleted successfully----------------");
     }
 
     @Around("@annotation(com.sistore.productservice.logging.LogExecutionTime)")
