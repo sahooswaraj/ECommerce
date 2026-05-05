@@ -6,6 +6,7 @@ import com.sistore.productservice.entity.Product;
 import com.sistore.productservice.exception.ProductNotFoundException;
 import com.sistore.productservice.logging.LogExecutionTime;
 import com.sistore.productservice.service.ProductServiceImpl;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class ProductController {
     public ProductServiceImpl productService;
 
     @PostMapping
+    @Transactional
     @LogExecutionTime
     public ResponseEntity<?> saveProduct(@Valid @RequestBody ProductRequest product){
         Product product1 = productService.saveProduct(product);
@@ -45,6 +47,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> deleteProduct(@PathVariable Long id){
         Product product = productService.deleteProduct(id);
         if(Objects.isNull(product)){
@@ -55,10 +58,14 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @LogExecutionTime
+    @Transactional
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody(required = true) ProductRequest product){
         Product product1 = productService.updateProduct(id, product);
         if(Objects.isNull(product1)){
             throw new ProductNotFoundException("No Product Available to Update", HttpStatus.NOT_FOUND);
+        }
+        if(id == 2){
+            throw new RuntimeException();
         }
         return new ResponseEntity<>(productService.mapToProductResponse(product1), HttpStatus.OK);
     }

@@ -22,7 +22,13 @@ public class Logging {
     @Around("@within(org.springframework.stereotype.Service)")
     public Object logMethodCompletion(ProceedingJoinPoint joinPoint) throws Throwable {
         System.out.println("Method Execution started successfully---------" + LocalDateTime.now());
-        Object result = joinPoint.proceed();
+        Object result = null;
+        try {
+            result = joinPoint.proceed();
+        } catch (Throwable ex) {
+            System.out.println("Exception occurred: " + ex.getMessage());
+            throw ex;
+        }
         System.out.println("Method execution ended successfully---------" + LocalDateTime.now());
         return result;
     }
@@ -33,7 +39,7 @@ public class Logging {
     }
 
     @Around("@annotation(com.sistore.productservice.logging.LogExecutionTime)")
-    public Object logExecutionTime(ProceedingJoinPoint joinPoint) {
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         System.out.println("Method Execution started successfully---------");
         LocalDateTime start = LocalDateTime.now();
         Object result = null;
@@ -41,6 +47,7 @@ public class Logging {
             result = joinPoint.proceed();
         } catch (Throwable ex) {
             System.out.println("Exception occurred: " + ex.getMessage());
+            throw ex;
         }
         System.out.println("Method execution ended successfully---------" );
         LocalDateTime end = LocalDateTime.now();

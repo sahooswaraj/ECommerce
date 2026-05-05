@@ -50,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
             currentProduct.setCategory(productRequest.getCategory());
             currentProduct.setBrand(productRequest.getBrand());
             currentProduct.setAvailable(productRequest.getAvailable());
-            currentProduct.setInventory(mapToInventory(productRequest.getInventory()));
+            currentProduct.setInventory(updateInventory(currentProduct.getInventory(), productRequest.getInventory()));
             currentProduct.setUpdatedAt(LocalDateTime.now());
             productRepository.save(currentProduct);
         }
@@ -103,5 +103,14 @@ public class ProductServiceImpl implements ProductService {
         Inventory inventory = new Inventory();
         inventory.setStock(inventoryRequest.getStock());
         return inventory;
+    }
+
+
+    private Inventory updateInventory(Inventory currentInventory,InventoryRequest inventoryRequest) {
+        if (Objects.isNull(inventoryRequest)) {
+            return null;
+        }
+        currentInventory.setStock(inventoryRequest.getStock());
+        return currentInventory;
     }
 }
