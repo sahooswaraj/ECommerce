@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JWT Demo</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input id="username" placeholder="Username" />
+<input id="password" type="password" placeholder="Password" />
+<button onclick="login()">Login</button>
+
+<h2>Products</h2>
+<button onclick="getProducts()">Get Products</button>
+
+<pre id="output"></pre>
+
+<script>
+
+function login() {
+    fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+
+        // ✅ Store token in browser
+        localStorage.setItem("token", data.token);
+
+        alert("Login successful!");
+    });
+}
+
+function getProducts() {
+
+    const token = localStorage.getItem("token");
+
+    fetch("http://localhost:8080/product", {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + token // ✅ attach JWT
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+    });
+}
+
+</script>
+
+</body>
+</html>

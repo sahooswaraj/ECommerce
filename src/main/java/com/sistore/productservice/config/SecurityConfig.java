@@ -20,6 +20,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfig {
     private static final RequestMatcher H2_CONSOLE_MATCHER =
             request -> request.getRequestURI() != null && request.getRequestURI().startsWith("/h2-console");
+    private static final RequestMatcher AUTH_MATCHER =
+            request -> request.getRequestURI() != null && request.getRequestURI().startsWith("/auth");
 
     @Autowired
     private JwtFilter jwtFilter;
@@ -49,7 +51,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(H2_CONSOLE_MATCHER)
+                        .ignoringRequestMatchers(H2_CONSOLE_MATCHER, AUTH_MATCHER)
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
