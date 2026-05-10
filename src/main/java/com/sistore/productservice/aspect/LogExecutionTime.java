@@ -1,4 +1,4 @@
-package com.sistore.productservice.logging;
+package com.sistore.productservice.aspect;
 
 
 import java.lang.annotation.ElementType;

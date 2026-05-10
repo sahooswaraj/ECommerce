@@ -6,55 +6,62 @@ import com.sistore.productservice.dto.ProductRequest;
 import com.sistore.productservice.dto.ProductResponse;
 import com.sistore.productservice.entity.Inventory;
 import com.sistore.productservice.entity.Product;
+import com.sistore.productservice.exception.ProductNotFoundException;
 import com.sistore.productservice.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    public ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
+    public ProductServiceImpl(ProductRepository productRepository){
+        this.productRepository = productRepository;
+    }
 
     @Override
-    public Product saveProduct(ProductRequest product) {
-        product.setCreatedAt(LocalDateTime.now());
+    public ProductResponse saveProduct(ProductRequest product) {
         Product product1 = mapToProduct(product);
-        return productRepository.save(product1);
+        return mapToProductResponse(productRepository.save(product1));
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponse> getAllProducts() {
+        return productRepository.findAll().stream().map(this::mapToProductResponse).toList();
     }
 
     @Override
-    public Product deleteProduct(Long id) {
+    public ProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product Not Found", HttpStatus.NOT_FOUND));
+        return mapToProductResponse(product);
+    }
+
+    @Override
+    public ProductResponse deleteProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         if (Objects.nonNull(product))
             productRepository.delete(product);
-        return product;
+        return Objects.nonNull(product) ? mapToProductResponse(product) : null;
     }
 
     @Override
-    public Product updateProduct(Long id, ProductRequest productRequest) {
-        Product currentProduct = productRepository.findById(id).orElse(null);
-        if (Objects.nonNull(currentProduct)) {
-            currentProduct.setName(productRequest.getName());
-            currentProduct.setDescription(productRequest.getDescription());
-            currentProduct.setPrice(productRequest.getPrice());
-            currentProduct.setCategory(productRequest.getCategory());
-            currentProduct.setBrand(productRequest.getBrand());
-            currentProduct.setAvailable(productRequest.getAvailable());
-            currentProduct.setInventory(updateInventory(currentProduct.getInventory(), productRequest.getInventory()));
-            currentProduct.setUpdatedAt(LocalDateTime.now());
-            productRepository.save(currentProduct);
-        }
-        return currentProduct;
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
+        Product currentProduct = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product Not Found", HttpStatus.NOT_FOUND));
+
+        currentProduct.setName(productRequest.getName());
+        currentProduct.setDescription(productRequest.getDescription());
+        currentProduct.setPrice(productRequest.getPrice());
+        currentProduct.setCategory(productRequest.getCategory());
+        currentProduct.setBrand(productRequest.getBrand());
+        currentProduct.setAvailable(productRequest.getAvailable());
+        currentProduct.setInventory(updateInventory(currentProduct.getInventory(), productRequest.getInventory()));
+        Product updatedProduct = productRepository.saveAndFlush(currentProduct);
+
+        return mapToProductResponse(updatedProduct);
     }
 
     public ProductResponse mapToProductResponse(Product product) {
@@ -80,8 +87,6 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(productDto.getCategory());
         product.setBrand(productDto.getBrand());
         product.setAvailable(productDto.getAvailable());
-        product.setCreatedAt(productDto.getCreatedAt());
-        product.setUpdatedAt(productDto.getUpdatedAt());
         product.setInventory(mapToInventory(productDto.getInventory()));
         return product;
     }
@@ -106,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    private Inventory updateInventory(Inventory currentInventory,InventoryRequest inventoryRequest) {
+    private Inventory updateInventory(Inventory currentInventory, InventoryRequest inventoryRequest) {
         if (Objects.isNull(inventoryRequest)) {
             return null;
         }

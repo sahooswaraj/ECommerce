@@ -1,16 +1,18 @@
 package com.sistore.productservice.service;
 
 import com.sistore.productservice.dto.ProductRequest;
-import com.sistore.productservice.entity.Product;
+import com.sistore.productservice.dto.ProductResponse;
 
 import java.util.List;
 
 public interface ProductService {
-    Product saveProduct(ProductRequest product);
+    ProductResponse saveProduct(ProductRequest product);
 
-    List<Product> getAllProducts();
+    List<ProductResponse> getAllProducts();
 
-    Product deleteProduct(Long id);
+    ProductResponse getProductById(Long id);
 
-    Product updateProduct(Long id, ProductRequest product);
+    ProductResponse deleteProduct(Long id);
+
+    ProductResponse updateProduct(Long id, ProductRequest product);
 }
